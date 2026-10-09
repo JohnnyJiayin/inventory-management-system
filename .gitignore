@@ -1,0 +1,37 @@
+# ---- macOS ----
+.DS_Store
+
+# ---- Xcode 用户文件与构建产物 ----
+xcuserdata/
+*.xcuserstate
+*.xcscmblueprint
+DerivedData/
+build/
+*.ipa
+*.dSYM.zip
+*.dSYM
+.swiftpm/
+.build/
+
+# ---- 密钥与本地配置（只提交 *.example.xcconfig）----
+*.xcconfig
+!*.example.xcconfig
+.env
+.env.*
+!.env.example
+*.pem
+*.p12
+*.p8
+*.mobileprovision
+service_role*
+signing_keys.json
+
+# ---- 数据库备份文件（备份只存放在私有仓库 inventory-backup）----
+*.dump
+*.backup
+*.sql.gz
+*.sql.zst
+backups/
+
+# ios/Config/Base.xcconfig 不含密钥，需要提交
+!ios/Config/Base.xcconfig

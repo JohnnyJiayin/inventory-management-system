@@ -1,0 +1,38 @@
+# 保活：每 3 天调用一次 ping()（Issue #8）
+# Supabase 免费项目连续 7 天无活动会被暂停。ping() 会真实写入 heartbeat 表，
+# 确保被算作数据库活动；它不返回任何业务数据，anon key 也只能调用这一个函数。
+#
+# 需要的 Secrets：
+#   SUPABASE_URL       例如 https://xxxx.supabase.co
+#   SUPABASE_ANON_KEY  anon（或 publishable）key
+#
+# 失败通知：定时任务失败时 GitHub 自动发邮件给仓库所有者。
+name: 保活 ping
+
+on:
+  schedule:
+    - cron: "0 1 */3 * *" # 每 3 天，UTC 01:00 = 北京时间 09:00
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: 调用 ping()
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          set -euo pipefail
+          test -n "$SUPABASE_URL" -a -n "$SUPABASE_ANON_KEY" || { echo "缺少 Secrets"; exit 1; }
+          AUTH=()
+          # 旧版 anon key 是 JWT，需要同时放在 Authorization 头；新版 publishable key 只需 apikey 头
+          case "$SUPABASE_ANON_KEY" in eyJ*) AUTH=(-H "Authorization: Bearer $SUPABASE_ANON_KEY");; esac
+          CODE=$(curl -sS -o /tmp/body -w '%{http_code}' --retry 3 --retry-delay 10 \
+            -X POST "$SUPABASE_URL/rest/v1/rpc/ping" \
+            -H "apikey: $SUPABASE_ANON_KEY" "${AUTH[@]}" \
+            -H "Content-Type: application/json" -d '{}')
+          echo "HTTP $CODE"
+          cat /tmp/body; echo
+          test "$CODE" = "204" -o "$CODE" = "200"

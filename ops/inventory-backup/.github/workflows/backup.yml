@@ -1,0 +1,84 @@
+# 每日数据库备份（Issue #7）
+# 放在私有仓库 inventory-backup 中运行，备份文件绝不能出现在公开仓库。
+#
+# 需要的 Secrets（Settings → Secrets and variables → Actions）：
+#   SUPABASE_DB_URL  Supabase 后台 Connect → Session pooler 的连接串（含数据库密码）
+#                    注意：免费版的 Direct connection 只支持 IPv6，GitHub Actions 连不上，必须用 Session pooler。
+#
+# 失败通知：定时任务失败时，GitHub 会自动给仓库所有者发邮件
+#           （个人设置 → Notifications → Actions 保持 “Email” 开启即可）。
+name: 每日数据库备份
+
+on:
+  schedule:
+    - cron: "0 18 * * *" # UTC 18:00 = 北京时间凌晨 02:00
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: backup
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 安装 PostgreSQL 17 客户端（pg_dump 版本不能低于服务器）
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-common
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
+          sudo apt-get install -y -qq postgresql-client-17
+          echo "/usr/lib/postgresql/17/bin" >> "$GITHUB_PATH"
+
+      - name: 导出并压缩
+        env:
+          DATABASE_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          set -euo pipefail
+          test -n "$DATABASE_URL" || { echo "缺少 Secret SUPABASE_DB_URL"; exit 1; }
+          pg_dump --version
+
+          STAMP=$(TZ=Asia/Shanghai date +%Y%m%d-%H%M%S)
+          DIR="backups/$(TZ=Asia/Shanghai date +%Y)"
+          FILE="$DIR/inventory-$STAMP.sql.gz"
+          mkdir -p "$DIR"
+
+          # 业务数据全部在 public schema；supabase_migrations 记录已执行的迁移
+          pg_dump "$DATABASE_URL" \
+            --schema=public --schema=supabase_migrations \
+            --no-owner --quote-all-identifiers \
+            | gzip -9 > "$FILE"
+
+          # 基本校验：文件不为空，且包含核心表
+          gzip -t "$FILE"
+          gunzip -c "$FILE" | grep -q 'CREATE TABLE "public"."product_models"' \
+            || { echo "备份内容不完整"; exit 1; }
+          ls -lh "$FILE"
+          echo "FILE=$FILE" >> "$GITHUB_ENV"
+
+      - name: 删除 90 天前的备份（按文件名中的日期判断）
+        run: |
+          set -euo pipefail
+          CUTOFF=$(TZ=Asia/Shanghai date -d "90 days ago" +%Y%m%d)
+          find backups -name 'inventory-*.sql.gz' | while read -r f; do
+            d=$(basename "$f" | sed -E 's/^inventory-([0-9]{8})-.*/\1/')
+            if [ "$d" -lt "$CUTOFF" ]; then
+              echo "删除 $f"
+              git rm -q "$f"
+            fi
+          done
+
+      - name: 提交
+        run: |
+          set -euo pipefail
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add backups
+          git commit -q -m "backup: $(basename "$FILE")"
+          git push

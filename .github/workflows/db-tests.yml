@@ -1,0 +1,29 @@
+# 数据库测试：在全新的本地 Supabase 上从头执行全部迁移，然后运行 SQL 测试
+# 注意：备份与保活任务不在这里，见 ops/inventory-backup（必须放在私有仓库）。
+name: 数据库测试
+
+on:
+  push:
+    paths: ["supabase/**", ".github/workflows/db-tests.yml"]
+  pull_request:
+    paths: ["supabase/**", ".github/workflows/db-tests.yml"]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.90.0
+      - name: 启动数据库并执行全部迁移
+        run: supabase db start
+      - name: pgTAP 测试
+        run: supabase test db
+      - name: 并发测试
+        run: |
+          PSQL="docker exec supabase_db_inventory-management-system psql" \
+          DB_URL=postgresql://postgres:postgres@127.0.0.1:5432/postgres \
+          ./supabase/tests/concurrency.sh

@@ -1,0 +1,66 @@
+# 用 XcodeGen 生成 Xcode 项目：cd ios && xcodegen generate
+name: InventoryApp
+options:
+  bundleIdPrefix: com.johnnyjiayin
+  deploymentTarget:
+    iOS: "16.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+packages:
+  Supabase:
+    url: https://github.com/supabase/supabase-swift
+    exactVersion: 2.55.2
+targets:
+  InventoryApp:
+    type: application
+    platform: iOS
+    sources:
+      - path: InventoryApp
+    configFiles:
+      Debug: Config/Base.xcconfig
+      Release: Config/Base.xcconfig
+    dependencies:
+      - package: Supabase
+        product: Supabase
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.johnnyjiayin.inventory
+        TARGETED_DEVICE_FAMILY: "2" # 仅 iPad
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_FILE: InventoryApp/Resources/Info.plist
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_CFBundleDisplayName: 库存管理
+        INFOPLIST_KEY_NSCameraUsageDescription: 需要使用摄像头扫描产品条码、机身号和拍摄产品照片
+        INFOPLIST_KEY_NSPhotoLibraryUsageDescription: 需要从相册选择产品照片
+        CODE_SIGN_STYLE: Automatic
+  InventoryAppUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: InventoryAppUITests
+    dependencies:
+      - target: InventoryApp
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        TARGETED_DEVICE_FAMILY: "2"
+        PRODUCT_BUNDLE_IDENTIFIER: com.johnnyjiayin.inventory.uitests
+schemes:
+  InventoryApp:
+    build:
+      targets:
+        InventoryApp: all
+        InventoryAppUITests: [test]
+    test:
+      targets:
+        - InventoryAppUITests
+      environmentVariables:
+        UITEST_EMAIL: owner@example.com
+        UITEST_PASSWORD: test-pass-123
