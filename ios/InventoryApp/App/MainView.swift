@@ -33,6 +33,7 @@ struct MainView: View {
 
     @State private var selection: Section? = .home
     @StateObject private var products = ProductStore()
+    @StateObject private var stockIn = StockInViewModel()
 
     var body: some View {
         NavigationSplitView {
@@ -52,7 +53,7 @@ struct MainView: View {
                 switch selection ?? .home {
                 case .home: HomeView()
                 case .products: ProductListView()
-                case .stockIn: StockInView()
+                case .stockIn: StockInView(vm: stockIn)
                 case .outbound: OutboundPlaceholderView()
                 case .dealers: DealersPlaceholderView()
                 case .reports: ReportsPlaceholderView()

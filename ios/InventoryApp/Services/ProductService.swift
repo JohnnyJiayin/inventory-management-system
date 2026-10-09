@@ -59,7 +59,7 @@ enum ProductService {
 
     // MARK: - 业务函数
 
-    struct CreateParams: Encodable {
+    struct CreateParams: Encodable, Equatable {
         var name: String
         var model: String
         var barcode: String
@@ -133,8 +133,10 @@ enum ProductService {
     /// 删除从未有出入库记录的型号，同时删除其照片
     static func deleteModel(_ model: ProductModel) async throws {
         struct P: Encodable { let p_model_id: UUID }
-        try await supabase.rpc("delete_model", params: P(p_model_id: model.id)).execute()
-        if let path = model.photoPath {
+        struct R: Decodable { let photo_path: String? }
+        // 以数据库返回的 photo_path 为准（本地 model 可能已过期）
+        let result: R = try await supabase.rpc("delete_model", params: P(p_model_id: model.id)).execute().value
+        if let path = result.photo_path {
             await PhotoService.remove(path: path)
         }
     }

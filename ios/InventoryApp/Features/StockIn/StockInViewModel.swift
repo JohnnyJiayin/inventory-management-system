@@ -33,6 +33,8 @@ final class StockInViewModel: ObservableObject {
     private var requestID: UUID?
 
     var step: ScanStep { model == nil ? .productBarcode : .serialNumber }
+    /// 扫码查询或确认入库进行中：期间不能更换型号、修改清单，避免异步结果写回到新的型号上
+    var isWorking: Bool { busy || submitting }
     var remaining: Int { max(plannedQty - items.count, 0) }
 
     var confirmBlocker: String? {
@@ -46,7 +48,7 @@ final class StockInViewModel: ObservableObject {
     // MARK: - 扫码
 
     func handle(_ code: String) {
-        guard !busy else { return }
+        guard !busy, !submitting else { return }
         busy = true
         Task {
             defer { busy = false }
@@ -99,6 +101,8 @@ final class StockInViewModel: ObservableObject {
         async let unitLookup = ProductService.fetchUnit(modelID: model.id, serialNo: code)
         async let barcodeLookup = ProductService.fetchModel(barcode: code)
         let (unit, otherModel) = try await (unitLookup, barcodeLookup)
+        // 查询期间型号已更换：丢弃本次结果
+        guard self.model?.id == model.id else { return }
 
         if unit == nil, let otherModel {
             return fail("这是“\(otherModel.displayName)”的产品条码，请扫描右侧机身号条码")
@@ -136,10 +140,12 @@ final class StockInViewModel: ObservableObject {
     // MARK: - 清单
 
     func remove(_ item: Item) {
+        guard !isWorking else { return }
         items.removeAll { $0 == item }
     }
 
     func changeModel() {
+        guard !isWorking else { return }
         model = nil
         items = []
         message = nil
@@ -169,12 +175,14 @@ final class StockInViewModel: ObservableObject {
                 isError: false)
             items = []
             requestID = nil
-            if let refreshed = try? await ProductService.fetchModel(id: model.id) {
+            if let refreshed = try? await ProductService.fetchModel(id: model.id),
+               self.model?.id == model.id {
                 self.model = refreshed
             }
         } catch {
-            // 网络错误时保留请求编号，重试不会重复入库；业务错误（例如机身号已在库）整批都没有入库
-            if !AppError.isNetwork(error) { requestID = nil }
+            // 业务错误（例如机身号已在库）整批都没有入库，清空请求编号；
+            // 其他错误无法确定服务器是否已执行，保留请求编号，重试不会重复入库
+            if AppError.isBusiness(error) { requestID = nil }
             fail(AppError.message(error))
         }
     }

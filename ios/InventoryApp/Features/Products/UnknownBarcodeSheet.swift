@@ -37,6 +37,7 @@ struct UnknownBarcodeSheet: View {
                     } label: {
                         Label("绑定已有型号", systemImage: "link")
                     }
+                    .requiresOnline()
                 }
                 if let error {
                     Label(error, systemImage: "exclamationmark.triangle").foregroundStyle(.red)
@@ -74,6 +75,7 @@ struct BindModelList: View {
     let onBound: (ProductModel) -> Void
 
     @EnvironmentObject private var store: ProductStore
+    @EnvironmentObject private var network: NetworkMonitor
     @State private var query = ""
     @State private var target: ProductModel?
     @State private var working = false
@@ -84,7 +86,8 @@ struct BindModelList: View {
             if let error {
                 Label(error, systemImage: "exclamationmark.triangle").foregroundStyle(.red)
             }
-            ForEach(store.filtered(query)) { model in
+            // 已停用的型号不能入库 / 出库，绑定后也无法继续原流程，因此不列出
+            ForEach(store.filtered(query).filter(\.active)) { model in
                 Button {
                     target = model
                 } label: {
@@ -106,6 +109,10 @@ struct BindModelList: View {
     }
 
     private func bind(_ model: ProductModel) {
+        guard network.isOnline else {
+            error = "网络未连接，不能绑定条码"
+            return
+        }
         working = true
         error = nil
         Task {

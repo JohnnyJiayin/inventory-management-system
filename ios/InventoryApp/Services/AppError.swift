@@ -29,8 +29,10 @@ enum AppError {
         return error.localizedDescription
     }
 
-    /// 是否为网络类错误（这类错误可以用同一个请求编号安全重试）
-    static func isNetwork(_ error: Error) -> Bool {
-        error is URLError
+    /// 是否为数据库业务函数明确拒绝的错误（整个事务已回滚）。
+    /// 其他错误（网络中断、网关超时、响应解析失败等）无法确定服务器是否已执行，
+    /// 必须沿用同一个请求编号重试。
+    static func isBusiness(_ error: Error) -> Bool {
+        error is PostgrestError
     }
 }

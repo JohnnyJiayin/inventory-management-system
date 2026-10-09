@@ -20,6 +20,11 @@ DB_URL=${DB_URL:-postgresql://postgres:postgres@127.0.0.1:54422/postgres}
 N=${N:-20}
 FAILED=0
 
+case "$DB_URL" in
+  *@127.0.0.1:*|*@localhost:*) ;;
+  *) [ "${ALLOW_REMOTE:-}" = 1 ] || { echo "只能在本地数据库上运行（会写入并删除测试数据）；确需远程运行请设置 ALLOW_REMOTE=1"; exit 2; } ;;
+esac
+
 sql() { $PSQL "$DB_URL" -X -q -t -A -v ON_ERROR_STOP=1 -c "$1"; }
 check() {
   if [ "$2" = "$3" ]; then echo "ok - $1"; else echo "not ok - $1 (got $2, want $3)"; FAILED=1; fi
@@ -27,15 +32,29 @@ check() {
 
 TAG="conc$(date +%s)$$"
 DAY="2099-01-01"
+# 测试 2、3 会调用 stock_in，占用今天（北京时间）的入库单号；结束时恢复计数，避免真实单号被跳过
+TODAY=$(sql "select (now() at time zone 'Asia/Shanghai')::date")
+TODAY_RK=$(sql "select coalesce((select last_no::text from doc_counters where prefix = 'RK' and day = '$TODAY'), 'none')")
 
 cleanup() {
+  # 恢复为“测试前的值”与“今天剩余入库记录的最大序号”中较大者，不会让以后的单号与已有记录重复
+  local base=0
+  [ "$TODAY_RK" != "none" ] && base=$TODAY_RK
+  RESTORE_RK="update doc_counters set last_no = greatest($base, coalesce((
+      select max(split_part(record_no, '-', 2)::int) from stock_in_records
+      where record_no like 'RK' || to_char(date '$TODAY', 'YYYYMMDD') || '-%'), 0))
+    where prefix = 'RK' and day = '$TODAY';
+    delete from doc_counters where prefix = 'RK' and day = '$TODAY' and last_no = 0;"
   sql "
+    delete from request_keys where result ->> 'model_id' in
+      (select id::text from product_models where barcode like '$TAG%');
     delete from audit_logs where model_id in (select id from product_models where barcode like '$TAG%');
     delete from stock_in_records where model_id in (select id from product_models where barcode like '$TAG%');
     delete from units where model_id in (select id from product_models where barcode like '$TAG%');
     delete from audit_logs where table_name = 'product_models' and after ->> 'barcode' like '$TAG%';
     delete from product_models where barcode like '$TAG%';
     delete from doc_counters where day = '$DAY';
+    $RESTORE_RK
   " >/dev/null
 }
 trap cleanup EXIT

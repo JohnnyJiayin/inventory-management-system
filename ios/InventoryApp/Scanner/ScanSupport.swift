@@ -71,7 +71,9 @@ enum ScanFeedback {
     }
 }
 
-/// 同一条码 2 秒内重复读到只算一次
+/// 同一条码 2 秒内重复读到只算一次。
+/// 时间窗口按“最后一次读到”滑动：条码一直留在画面中（AVFoundation 每帧都会读到）时始终只算一次，
+/// 不会每 2 秒重复触发提示音；离开画面超过 2 秒后再扫才算新的一次。需要立即重扫时调用 reset()。
 final class ScanDebouncer {
     private var last: (code: String, at: Date)?
     let interval: TimeInterval
@@ -80,6 +82,7 @@ final class ScanDebouncer {
 
     func accept(_ code: String, now: Date = Date()) -> Bool {
         if let last, last.code == code, now.timeIntervalSince(last.at) < interval {
+            self.last = (code, now)
             return false
         }
         last = (code, now)

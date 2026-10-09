@@ -9,7 +9,12 @@ enum PhotoService {
 
     /// 压缩并上传，返回存储路径
     static func upload(_ image: UIImage) async throws -> String {
-        guard let data = ImageCompressor.jpeg(image, maxBytes: targetBytes) else {
+        // 压缩需要多次编码，放到后台线程，避免界面卡顿
+        let maxBytes = targetBytes
+        let compressed = await Task.detached(priority: .userInitiated) {
+            ImageCompressor.jpeg(image, maxBytes: maxBytes)
+        }.value
+        guard let data = compressed else {
             throw CocoaError(.fileWriteUnknown)
         }
         let path = "models/\(UUID().uuidString.lowercased()).jpg"
@@ -51,22 +56,37 @@ actor SignedURLCache {
 }
 
 enum ImageCompressor {
-    /// 先把长边缩到 1600px，再逐步降低 JPEG 质量直到不超过 maxBytes；
-    /// 质量降到下限仍超出时继续缩小尺寸。
+    /// 先把长边缩到 1600px，再用二分法找不超过 maxBytes 的最高 JPEG 质量（每个尺寸约 5 次编码）；
+    /// 最低质量仍超出时继续缩小尺寸。可以在后台线程调用。
     static func jpeg(_ image: UIImage, maxBytes: Int) -> Data? {
         var maxSide: CGFloat = 1600
         while maxSide >= 400 {
             let scaled = resize(image, maxSide: maxSide)
-            var quality: CGFloat = 0.8
-            while quality >= 0.3 {
-                if let data = scaled.jpegData(compressionQuality: quality), data.count <= maxBytes {
-                    return data
-                }
-                quality -= 0.1
+            if let data = bestQuality(scaled, maxBytes: maxBytes) {
+                return data
             }
             maxSide *= 0.75
         }
         return resize(image, maxSide: 400).jpegData(compressionQuality: 0.3)
+    }
+
+    private static func bestQuality(_ image: UIImage, maxBytes: Int) -> Data? {
+        if let data = image.jpegData(compressionQuality: 0.8), data.count <= maxBytes {
+            return data
+        }
+        var low: CGFloat = 0.3, high: CGFloat = 0.8
+        guard var best = image.jpegData(compressionQuality: low), best.count <= maxBytes else { return nil }
+        for _ in 0..<4 {
+            let mid = (low + high) / 2
+            guard let data = image.jpegData(compressionQuality: mid) else { break }
+            if data.count <= maxBytes {
+                best = data
+                low = mid
+            } else {
+                high = mid
+            }
+        }
+        return best
     }
 
     private static func resize(_ image: UIImage, maxSide: CGFloat) -> UIImage {

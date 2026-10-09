@@ -5,7 +5,7 @@
 
 | 文件 | 作用 | 频率 |
 |---|---|---|
-| `.github/workflows/backup.yml` | `pg_dump` → gzip → 提交到本仓库；自动删除 90 天前的备份 | 每天北京时间 02:00 |
+| `.github/workflows/backup.yml` | `pg_dump` → gzip → 上传为本仓库的 Release 附件；自动删除 90 天前的备份 | 每天北京时间 02:00 |
 | `.github/workflows/keepalive.yml` | 用 anon key 调用 `ping()`，防止免费项目被暂停 | 每 3 天 |
 
 ## 一次性设置
@@ -27,12 +27,18 @@
    | `SUPABASE_URL` | `https://<project-ref>.supabase.co` |
    | `SUPABASE_ANON_KEY` | anon / publishable key |
 
-4. Settings → Actions → General → Workflow permissions 选 **Read and write permissions**（备份任务需要提交）。
+4. Settings → Actions → General → Workflow permissions 选 **Read and write permissions**（备份任务需要创建 Release）。
 5. Actions 页面分别手动运行一次 “每日数据库备份” 和 “保活 ping”，确认成功：
-   - 仓库中出现 `backups/<年>/inventory-<日期>-<时间>.sql.gz`
+   - 仓库 Releases 中出现 `backup-<日期>-<时间>`，附件为 `inventory-<日期>-<时间>.sql.gz`
    - Supabase 后台 Table Editor 中 `heartbeat.pinged_at` 更新为刚才的时间
 
 失败通知：定时任务失败时 GitHub 会自动发邮件给仓库所有者（个人设置 → Notifications → Actions 保持开启）。
+
+## 为什么用 Release 而不是提交
+
+提交到 git 的文件即使之后 `git rm`，也会永久留在历史里，仓库只会越来越大。
+每个备份存为一个 Release 附件，删除 Release 时附件被真正删除，90 天保留才有效。
+私有仓库的 Release 只有有权限的人能看到。
 
 ## 备份内容
 
@@ -46,7 +52,8 @@
 # 1. 新建（或清空）一个 Supabase 项目，取得 Session pooler 连接串 $DB_URL
 # 2. 清空 public schema 后导入备份
 psql "$DB_URL" -c 'drop schema public cascade'
-gunzip -c backups/2026/inventory-YYYYMMDD-HHMMSS.sql.gz | psql "$DB_URL"
+gh release download backup-YYYYMMDD-HHMMSS -R JohnnyJiayin/inventory-backup
+gunzip -c inventory-YYYYMMDD-HHMMSS.sql.gz | psql "$DB_URL"
 # 导入时出现 “permission denied to change default privileges” 可以忽略（Supabase 内部角色的默认权限）
 # 3. 创建照片存储桶及其权限：执行公开仓库 supabase/migrations/20260927000500_rls_and_grants.sql 末尾 “产品照片” 一节
 # 4. 在 Authentication 中重新创建登录账号，关闭公开注册

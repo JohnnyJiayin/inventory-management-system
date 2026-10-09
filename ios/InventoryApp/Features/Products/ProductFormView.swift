@@ -30,6 +30,9 @@ struct ProductFormView: View {
     @State private var newImage: UIImage?
     @State private var removePhoto = false
     @State private var uploadedPath: String?
+    /// 已上传的照片是否可能已被服务器引用（带着它的保存请求结果不确定，例如网络中断）。
+    /// 为 false 时这张照片一定没有被任何型号使用，可以放心删除。
+    @State private var uploadMaybeReferenced = false
     @State private var showCamera = false
 
     @State private var showBarcodeScanner = false
@@ -38,6 +41,8 @@ struct ProductFormView: View {
     @State private var saving = false
     @State private var error: String?
     @State private var requestID = UUID()
+    /// 上次提交的内容；内容变化后必须换新的请求编号，否则服务器会直接返回上次（旧内容）的结果
+    @State private var lastCreateParams: ProductService.CreateParams?
     @State private var loaded = false
 
     private var editing: ProductModel? {
@@ -104,7 +109,11 @@ struct ProductFormView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("取消") { dismiss() }.disabled(saving)
+                    Button("取消") {
+                        discardUpload()
+                        dismiss()
+                    }
+                    .disabled(saving)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     if saving {
@@ -185,7 +194,7 @@ struct ProductFormView: View {
                     if hasPhoto {
                         Button(role: .destructive) {
                             newImage = nil
-                            uploadedPath = nil
+                            discardUpload()
                             photoItem = nil
                             removePhoto = true
                         } label: {
@@ -247,9 +256,19 @@ struct ProductFormView: View {
         newImage != nil || (!removePhoto && editing?.photoPath != nil)
     }
 
+    /// 放弃已上传但未保存的照片（更换照片、移除照片、取消编辑时）。
+    /// 可能已被服务器引用的照片不删除，以免删掉已保存型号的照片。
+    private func discardUpload() {
+        if let path = uploadedPath, !uploadMaybeReferenced {
+            Task { await PhotoService.remove(path: path) }
+        }
+        uploadedPath = nil
+        uploadMaybeReferenced = false
+    }
+
     private func setImage(_ image: UIImage) {
         newImage = image
-        uploadedPath = nil
+        discardUpload()
         removePhoto = false
     }
 
@@ -286,7 +305,9 @@ struct ProductFormView: View {
             do {
                 if let newImage, uploadedPath == nil {
                     uploadedPath = try await PhotoService.upload(newImage)
+                    uploadMaybeReferenced = false
                 }
+                if uploadedPath != nil { uploadMaybeReferenced = true }
                 let id: UUID
                 if let editing {
                     let photoPath = uploadedPath ?? (removePhoto ? nil : editing.photoPath)
@@ -298,16 +319,24 @@ struct ProductFormView: View {
                     }
                     id = editing.id
                 } else {
-                    let result = try await ProductService.createModel(.init(
+                    var params = ProductService.CreateParams(
                         name: name, model: model, barcode: trimmedBarcode,
                         description: description, photoPath: uploadedPath,
-                        serialNos: serials, requestID: requestID))
+                        serialNos: serials, requestID: requestID)
+                    if let last = lastCreateParams, last != params {
+                        requestID = UUID()
+                        params.requestID = requestID
+                    }
+                    lastCreateParams = params
+                    let result = try await ProductService.createModel(params)
                     id = result.modelId
                 }
                 ScanFeedback.success()
                 onSaved(id)
                 dismiss()
             } catch {
+                // 数据库明确拒绝：事务已回滚，上传的照片没有被引用
+                if AppError.isBusiness(error) { uploadMaybeReferenced = false }
                 self.error = AppError.message(error)
                 ScanFeedback.failure()
             }

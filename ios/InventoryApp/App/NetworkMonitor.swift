@@ -18,6 +18,8 @@ final class NetworkMonitor: ObservableObject {
 
     private let monitor = NWPathMonitor()
     private var pathSatisfied = true
+    /// 每次网络路径变化加 1；检查服务器期间路径变了，就丢弃这次（已过期的）结果
+    private var pathGeneration = 0
     private var retryTask: Task<Void, Never>?
 
     init() {
@@ -34,6 +36,7 @@ final class NetworkMonitor: ObservableObject {
 
     private func pathChanged(satisfied: Bool) {
         pathSatisfied = satisfied
+        pathGeneration += 1
         if satisfied {
             Task { await checkServer() }
         } else {
@@ -49,11 +52,19 @@ final class NetworkMonitor: ObservableObject {
         var request = URLRequest(url: AppConfig.supabaseURL.appendingPathComponent("auth/v1/health"))
         request.timeoutInterval = 6
         request.setValue(AppConfig.supabaseAnonKey, forHTTPHeaderField: "apikey")
+        let generation = pathGeneration
+        let reachable: Bool
         do {
             let (_, response) = try await URLSession.shared.data(for: request)
-            let ok = (response as? HTTPURLResponse).map { (200..<500).contains($0.statusCode) } ?? false
-            status = ok ? .online : .serverUnreachable
+            reachable = (response as? HTTPURLResponse).map { (200..<500).contains($0.statusCode) } ?? false
         } catch {
+            reachable = false
+        }
+        // 请求期间网络路径变了（例如刚断网）：结果已过期，由路径变化触发的处理决定状态
+        guard generation == pathGeneration else { return }
+        if reachable {
+            status = .online
+        } else {
             status = pathSatisfied ? .serverUnreachable : .noNetwork
         }
         if status != .online { scheduleRetry() }

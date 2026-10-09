@@ -162,6 +162,9 @@ struct SingleScanSheet: View {
     let onResult: (String) -> Void
     @Environment(\.dismiss) private var dismiss
     @State private var result: String?
+    /// “重新扫描”时重建扫码组件：清空去重记录并重新开始识别，
+    /// 否则仍在画面中的同一条码不会再次触发
+    @State private var attempt = 0
 
     var body: some View {
         NavigationStack {
@@ -170,11 +173,15 @@ struct SingleScanSheet: View {
                     ScanFeedback.success()
                     result = code
                 }
+                .id(attempt)
                 if let result {
                     VStack(spacing: 12) {
                         Text(result).font(.title.monospaced().bold())
                         HStack {
-                            Button("重新扫描") { self.result = nil }
+                            Button("重新扫描") {
+                                self.result = nil
+                                attempt += 1
+                            }
                                 .buttonStyle(.bordered)
                             Button("使用此结果") {
                                 onResult(result)

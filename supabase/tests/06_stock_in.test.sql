@@ -4,7 +4,7 @@ create extension if not exists pgtap with schema extensions;
 -- 在本事务内清空业务数据（结束时回滚），测试不受 seed.sql 或其他数据影响
 truncate audit_logs, outbound_items, outbound_orders, stock_in_records, units,
          dealer_prices, dealer_addresses, dealers, product_models, request_keys, doc_counters;
-select plan(18);
+select plan(19);
 
 select create_model('功放', '4.4 AMP', 'BC-001') ->> 'model_id' as m \gset
 
@@ -59,6 +59,13 @@ select is((select count(*)::int from outbound_items i join units u on u.id = i.u
 select is((select array_agg(in_type order by record_no)::text from stock_in_records
             where model_id = :'m' and serial_no = '1'),
   '{first,restock}', '入库流水保留每一次入库');
+
+-- ---------------------------------------------------------------- request_keys 清理
+insert into request_keys (request_id, function_name, result, created_at)
+  values ('70000000-0000-0000-0000-000000000001', 'stock_in', '{}', now() - interval '31 days');
+select stock_in(:'m', array['7'], 1, gen_random_uuid());
+select is((select count(*)::int from request_keys where request_id = '70000000-0000-0000-0000-000000000001'),
+  0, '30 天前的请求编号被自动清理');
 
 select * from finish();
 rollback;

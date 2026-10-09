@@ -3,7 +3,8 @@ import SwiftUI
 /// 入库页面（需求 9、16.3）
 ///   扫产品条码 → 显示型号信息 → 输入计划数量 → 连续扫机身号 → 核对清单 → 确认入库
 struct StockInView: View {
-    @StateObject private var vm = StockInViewModel()
+    /// 由 MainView 持有：切换到其他页面再回来，已扫描的清单不会丢失
+    @ObservedObject var vm: StockInViewModel
     @EnvironmentObject private var network: NetworkMonitor
     @EnvironmentObject private var store: ProductStore
 
@@ -31,6 +32,7 @@ struct StockInView: View {
             if vm.model != nil {
                 ToolbarItem(placement: .primaryAction) {
                     Button("更换型号") { vm.changeModel() }
+                        .disabled(vm.isWorking)
                 }
             }
         }
@@ -58,7 +60,7 @@ struct StockInView: View {
     private var scanColumn: some View {
         VStack(spacing: 16) {
             ScannerPanel(step: vm.step,
-                         isPaused: vm.busy || vm.pendingRestock != nil || vm.unknownBarcode != nil,
+                         isPaused: vm.isWorking || vm.pendingRestock != nil || vm.unknownBarcode != nil,
                          height: 300) { code in
                 vm.handle(code)
             }
@@ -92,7 +94,7 @@ struct StockInView: View {
                     .textFieldStyle(.roundedBorder)
                 Stepper("", value: $vm.plannedQty, in: 1...9999).labelsHidden()
             }
-            .disabled(vm.model == nil)
+            .disabled(vm.model == nil || vm.isWorking)
 
             CountersView(planned: vm.plannedQty, scanned: vm.items.count)
 
@@ -115,6 +117,7 @@ struct StockInView: View {
                                 Image(systemName: "minus.circle.fill")
                             }
                             .buttonStyle(.borderless)
+                            .disabled(vm.isWorking)
                             .accessibilityLabel("删除 \(item.serialNo)")
                         }
                         .padding(.vertical, 8)

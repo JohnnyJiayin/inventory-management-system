@@ -102,7 +102,10 @@ final class Sprint1FlowTests: XCTestCase {
         XCTAssertTrue(app.buttons["重新启用"].waitForExistence(timeout: 10))
 
         // 停用后扫描该型号条码入库时提示已停用
+        // （入库页面的状态在切换页面后保留，之前选中的型号仍在，先更换型号）
         sidebar("入库").tap()
+        XCTAssertTrue(app.staticTexts["AMP-\(tag)"].waitForExistence(timeout: 5), "切换页面后入库状态保留")
+        app.buttons["更换型号"].tap()
         manualInput(barcode)
         XCTAssertTrue(app.staticTexts["“测试功放 AMP-\(tag)”已停用，不能入库"].waitForExistence(timeout: 10))
 

@@ -1,6 +1,9 @@
 # 每日数据库备份（Issue #7）
 # 放在私有仓库 inventory-backup 中运行，备份文件绝不能出现在公开仓库。
 #
+# 备份存为本仓库的 Release 附件（每个备份一个 Release，tag 为 backup-<日期>-<时间>），
+# 而不是提交到 git：git 历史无法真正删除文件，仓库会一直变大；删除 Release 则会真正删除附件。
+#
 # 需要的 Secrets（Settings → Secrets and variables → Actions）：
 #   SUPABASE_DB_URL  Supabase 后台 Connect → Session pooler 的连接串（含数据库密码）
 #                    注意：免费版的 Direct connection 只支持 IPv6，GitHub Actions 连不上，必须用 Session pooler。
@@ -25,9 +28,10 @@ jobs:
   backup:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
     steps:
-      - uses: actions/checkout@v4
-
       - name: 安装 PostgreSQL 17 客户端（pg_dump 版本不能低于服务器）
         run: |
           sudo apt-get update -qq
@@ -45,11 +49,10 @@ jobs:
           pg_dump --version
 
           STAMP=$(TZ=Asia/Shanghai date +%Y%m%d-%H%M%S)
-          DIR="backups/$(TZ=Asia/Shanghai date +%Y)"
-          FILE="$DIR/inventory-$STAMP.sql.gz"
-          mkdir -p "$DIR"
+          FILE="inventory-$STAMP.sql.gz"
 
-          # 业务数据全部在 public schema；supabase_migrations 记录已执行的迁移
+          # 业务数据全部在 public schema；supabase_migrations 记录已执行的迁移。
+          # 保留权限（GRANT / REVOKE），否则恢复后会落回 Supabase 的宽松默认权限。
           pg_dump "$DATABASE_URL" \
             --schema=public --schema=supabase_migrations \
             --no-owner --quote-all-identifiers \
@@ -57,28 +60,30 @@ jobs:
 
           # 基本校验：文件不为空，且包含核心表
           gzip -t "$FILE"
-          gunzip -c "$FILE" | grep -q 'CREATE TABLE "public"."product_models"' \
+          # 不用 grep -q：它找到后提前退出，gunzip 收到 SIGPIPE，pipefail 下整条管道会被判为失败
+          gunzip -c "$FILE" | grep -cF 'CREATE TABLE "public"."product_models"' >/dev/null \
             || { echo "备份内容不完整"; exit 1; }
           ls -lh "$FILE"
           echo "FILE=$FILE" >> "$GITHUB_ENV"
+          echo "TAG=backup-$STAMP" >> "$GITHUB_ENV"
 
-      - name: 删除 90 天前的备份（按文件名中的日期判断）
+      - name: 上传为 Release 附件
+        run: |
+          set -euo pipefail
+          gh release create "$TAG" "$FILE" \
+            --title "$TAG" \
+            --notes "数据库备份（北京时间 ${TAG#backup-}）"
+
+      - name: 删除 90 天前的备份（按 tag 中的日期判断）
         run: |
           set -euo pipefail
           CUTOFF=$(TZ=Asia/Shanghai date -d "90 days ago" +%Y%m%d)
-          find backups -name 'inventory-*.sql.gz' | while read -r f; do
-            d=$(basename "$f" | sed -E 's/^inventory-([0-9]{8})-.*/\1/')
-            if [ "$d" -lt "$CUTOFF" ]; then
-              echo "删除 $f"
-              git rm -q "$f"
-            fi
-          done
-
-      - name: 提交
-        run: |
-          set -euo pipefail
-          git config user.name  "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add backups
-          git commit -q -m "backup: $(basename "$FILE")"
-          git push
+          gh release list --limit 1000 --json tagName --jq '.[].tagName' \
+            | { grep -E '^backup-[0-9]{8}-' || true; } \
+            | while read -r tag; do
+                d=$(echo "$tag" | sed -E 's/^backup-([0-9]{8})-.*/\1/')
+                if [ "$d" -lt "$CUTOFF" ]; then
+                  echo "删除 $tag"
+                  gh release delete "$tag" --yes --cleanup-tag
+                fi
+              done
