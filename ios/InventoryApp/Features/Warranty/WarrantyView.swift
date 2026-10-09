@@ -13,6 +13,10 @@ struct WarrantyView: View {
     @State private var from = Calendar.current.date(byAdding: .month, value: -1, to: Date()) ?? Date()
     @State private var to = Date()
 
+    init(initialStatus: WarrantyService.StatusFilter = .all) {
+        _filter = State(initialValue: WarrantyService.Filter(status: initialStatus))
+    }
+
     private var effectiveFilter: WarrantyService.Filter {
         var f = filter
         f.shippedFrom = useDates ? from : nil

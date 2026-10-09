@@ -60,6 +60,18 @@ enum WarrantyService {
     }
 }
 
+extension WarrantyService {
+    /// 某型号的全部保修记录（含历次与已撤销订单），最新的在前
+    static func fetch(modelID: UUID) async throws -> [WarrantyRecord] {
+        try await supabase.from("v_warranty")
+            .select()
+            .eq("model_id", value: modelID)
+            .order("shipped_at", ascending: false)
+            .execute()
+            .value
+    }
+}
+
 /// 业务日期一律按北京时间（架构设计 7）
 enum BeijingDate {
     static let timeZone = TimeZone(identifier: "Asia/Shanghai")!

@@ -1,6 +1,7 @@
 import SwiftUI
 
-/// 产品基础详情（Issue #16）、删除与停用（Issue #18）。完整详情在 Sprint 3 完善。
+/// 产品详情（Issue #16、#41）、删除与停用（Issue #18）
+///   在库 / 已出库机身号、所有入库记录、所有出库记录、当前保修与历史保修记录。
 struct ProductDetailView: View {
     let modelID: UUID
 
@@ -11,7 +12,23 @@ struct ProductDetailView: View {
     @State private var confirmToggle = false
     @State private var working = false
     @State private var error: String?
-    @State private var inStock: [ProductUnit] = []
+    @State private var records = ProductRecords()
+    @State private var tab = RecordTab.inStock
+    @State private var serialQuery = ""
+    @State private var currentWarrantyOnly = true
+    @State private var recordsError: String?
+
+    enum RecordTab: Hashable {
+        case inStock, shipped, stockIns, outbound, warranty
+    }
+
+    /// 详情页的出入库与保修记录（一次加载）
+    struct ProductRecords {
+        var units: [ProductUnit] = []
+        var stockIns: [StockInRecord] = []
+        var outbound: [OutboundRecord] = []
+        var warranties: [WarrantyRecord] = []
+    }
 
     var body: some View {
         if let model = store.model(id: modelID) {
@@ -50,12 +67,7 @@ struct ProductDetailView: View {
                 LabeledContent("最近出库", value: model.lastOutAt?.formatted(date: .numeric, time: .shortened) ?? "—")
             }
 
-            if !inStock.isEmpty {
-                Section("在库机身号（\(inStock.count)）") {
-                    Text(inStock.map(\.serialNo).joined(separator: "、"))
-                        .font(.body.monospaced())
-                }
-            }
+            recordSection
 
             Section {
                 if let error {
@@ -98,10 +110,130 @@ struct ProductDetailView: View {
                             isPresented: $confirmToggle, titleVisibility: .visible) {
             Button(model.active ? "停用" : "启用", role: model.active ? .destructive : nil) { toggle(model) }
         }
-        .task(id: model.stockQty) {
-            inStock = (try? await ProductService.fetchUnits(modelID: model.id, status: .inStock)) ?? []
+        // 库存或出入库次数变化时重新加载记录
+        .task(id: [model.stockQty, model.totalIn, model.totalOut]) { await loadRecords() }
+        .refreshable {
+            await store.reload()
+            await loadRecords()
         }
-        .refreshable { await store.reload() }
+    }
+
+    // MARK: - 出入库与保修记录（Issue #41）
+
+    private func matches(_ serial: String) -> Bool {
+        let q = serialQuery.trimmingCharacters(in: .whitespaces)
+        return q.isEmpty || serial.localizedCaseInsensitiveContains(q)
+    }
+
+    private var recordSection: some View {
+        let inStock = records.units.filter { $0.status == .inStock && matches($0.serialNo) }
+        let shipped = records.units.filter { $0.status == .shipped && matches($0.serialNo) }
+        let stockIns = records.stockIns.filter { matches($0.serialNo) }
+        let outbound = records.outbound.filter { matches($0.serialNo) }
+        let warranties = records.warranties.filter { matches($0.serialNo) && (!currentWarrantyOnly || $0.isCurrent) }
+        return Section {
+            Picker("记录", selection: $tab) {
+                Text("在库 \(inStock.count)").tag(RecordTab.inStock)
+                Text("已出库 \(shipped.count)").tag(RecordTab.shipped)
+                Text("入库记录 \(stockIns.count)").tag(RecordTab.stockIns)
+                Text("出库记录 \(outbound.count)").tag(RecordTab.outbound)
+                Text("保修").tag(RecordTab.warranty)
+            }
+            .pickerStyle(.segmented)
+            TextField("按机身号筛选", text: $serialQuery)
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
+            if let recordsError {
+                Label(recordsError, systemImage: "exclamationmark.triangle").foregroundStyle(.red)
+            }
+            switch tab {
+            case .inStock:
+                unitList(inStock, empty: "没有在库产品")
+            case .shipped:
+                unitList(shipped, empty: "没有已出库产品")
+            case .stockIns:
+                if stockIns.isEmpty { emptyRow("没有入库记录") }
+                ForEach(stockIns) { r in
+                    HStack {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(r.serialNo).font(.body.monospaced())
+                            Text([r.recordNo, r.note].compactMap { $0 }.joined(separator: " · "))
+                                .font(.caption).foregroundStyle(.secondary)
+                        }
+                        Spacer()
+                        VStack(alignment: .trailing, spacing: 2) {
+                            StatusBadge(text: r.inType.title, color: r.inType == .first ? .blue : .purple)
+                            Text(r.inAt.formatted(date: .numeric, time: .shortened))
+                                .font(.caption.monospacedDigit()).foregroundStyle(.secondary)
+                        }
+                    }
+                }
+            case .outbound:
+                if outbound.isEmpty { emptyRow("没有出库记录") }
+                ForEach(outbound) { r in
+                    NavigationLink(value: OrderLink(id: r.orderId)) {
+                        HStack {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(r.serialNo).font(.body.monospaced())
+                                Text("\(r.dealerName) · \(r.orderNo)").font(.caption).foregroundStyle(.secondary)
+                            }
+                            Spacer()
+                            VStack(alignment: .trailing, spacing: 2) {
+                                HStack(spacing: 6) {
+                                    if r.orderStatus != .completed {
+                                        StatusBadge(text: r.orderStatus.title, color: r.orderStatus.color)
+                                    }
+                                    Text(Money.format(r.actualPrice)).monospacedDigit()
+                                }
+                                Text(r.shippedAt?.formatted(date: .numeric, time: .shortened) ?? "—")
+                                    .font(.caption.monospacedDigit()).foregroundStyle(.secondary)
+                            }
+                        }
+                        .opacity(r.orderStatus == .cancelled ? 0.6 : 1)
+                    }
+                }
+            case .warranty:
+                Toggle("只看当前保修（每台产品最近一次有效出库）", isOn: $currentWarrantyOnly)
+                if warranties.isEmpty { emptyRow("没有保修记录") }
+                ForEach(warranties) { record in
+                    NavigationLink(value: OrderLink(id: record.orderId)) {
+                        WarrantyRow(record: record)
+                    }
+                }
+            }
+        } header: {
+            Text("出入库与保修记录")
+        }
+    }
+
+    @ViewBuilder
+    private func unitList(_ units: [ProductUnit], empty: String) -> some View {
+        if units.isEmpty {
+            emptyRow(empty)
+        } else {
+            Text(units.map(\.serialNo).joined(separator: "、"))
+                .font(.body.monospaced())
+                .textSelection(.enabled)
+        }
+    }
+
+    private func emptyRow(_ text: String) -> some View {
+        Text(text).foregroundStyle(.secondary)
+    }
+
+    private func loadRecords() async {
+        do {
+            async let units = ProductService.fetchUnits(modelID: modelID)
+            async let stockIns = InventoryService.fetchStockIns(modelID: modelID)
+            async let outbound = InventoryService.fetchOutbound(modelID: modelID)
+            async let warranties = WarrantyService.fetch(modelID: modelID)
+            records = try await ProductRecords(units: units, stockIns: stockIns,
+                                               outbound: outbound, warranties: warranties)
+            recordsError = nil
+        } catch is CancellationError {
+        } catch {
+            recordsError = AppError.message(error)
+        }
     }
 
     private func delete(_ model: ProductModel) {

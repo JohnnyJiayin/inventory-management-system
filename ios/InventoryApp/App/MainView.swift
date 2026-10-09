@@ -34,6 +34,8 @@ struct MainView: View {
     }
 
     @State private var selection: Section? = .home
+    /// 从首页“即将过保”进入保修查询时的初始筛选；离开保修查询后恢复默认
+    @State private var warrantyPreset = WarrantyService.StatusFilter.all
     @StateObject private var products = ProductStore()
     @StateObject private var stockIn = StockInViewModel()
     @StateObject private var dealers = DealerStore()
@@ -54,12 +56,12 @@ struct MainView: View {
         } detail: {
             NavigationStack {
                 switch selection ?? .home {
-                case .home: HomeView()
+                case .home: HomeView(open: open)
                 case .products: ProductListView()
                 case .stockIn: StockInView(vm: stockIn)
                 case .outbound: OrderListView()
                 case .dealers: DealerListView()
-                case .warranty: WarrantyView()
+                case .warranty: WarrantyView(initialStatus: warrantyPreset)
                 case .reports: ReportsPlaceholderView()
                 case .settings: SettingsView()
                 }
@@ -67,8 +69,22 @@ struct MainView: View {
             // 切换页面时重建导航栈，避免停留在上一个页面的详情页
             .id(selection)
         }
+        .onChange(of: selection) { newValue in
+            if newValue != .warranty { warrantyPreset = .all }
+        }
         .environmentObject(products)
         .environmentObject(dealers)
+    }
+
+    private func open(_ destination: HomeDestination) {
+        switch destination {
+        case .products: selection = .products
+        case .orders: selection = .outbound
+        case .expiringWarranty:
+            warrantyPreset = .expiring
+            selection = .warranty
+        case .monthlyReport, .shippingReport: selection = .reports
+        }
     }
 }
 
