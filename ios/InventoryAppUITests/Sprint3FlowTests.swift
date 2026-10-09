@@ -43,4 +43,63 @@ final class Sprint3FlowTests: FlowTestCase {
         XCTAssertTrue(app.switches.matching(NSPredicate(format: "label BEGINSWITH '只看当前保修'")).firstMatch
             .waitForExistence(timeout: 5), "保修记录可切换历史记录")
     }
+
+    /// 报表：五类报表、筛选条件在切换报表时保留、三种格式导出（导出文件在测试后从模拟器取出检查）
+    func testReportsAndExport() throws {
+        app.launch()
+        try loginIfNeeded()
+        sidebar("报表").tap()
+        XCTAssertTrue(app.navigationBars["月度统计"].waitForExistence(timeout: 10))
+
+        // 筛选：全部时间；切换报表后保持
+        app.segmentedControls.buttons["全部时间"].tap()
+        XCTAssertTrue(app.staticTexts["合计"].waitForExistence(timeout: 10), "月度统计有合计行")
+        for (segment, table) in [("经销商", "经销商统计"), ("型号", "产品型号统计"), ("运费", "每月运费汇总"), ("保修", "保修数量")] {
+            app.segmentedControls.buttons[segment].tap()
+            XCTAssertTrue(app.staticTexts[table].waitForExistence(timeout: 10), "显示\(table)")
+            XCTAssertTrue(app.segmentedControls.buttons["全部时间"].isSelected, "切换到\(segment)后保留筛选条件")
+        }
+
+        // 导出：运费统计（含三个表格）分别导出三种格式
+        app.segmentedControls.buttons["运费"].tap()
+        XCTAssertTrue(app.staticTexts["订单运费明细"].waitForExistence(timeout: 10))
+        for format in ["Excel（.xlsx）", "CSV", "PDF"] {
+            app.buttons["导出"].tap()
+            app.buttons[format].tap()
+            // 系统分享面板出现后关闭
+            let share = app.otherElements["ActivityListView"].firstMatch
+            let appeared = share.waitForExistence(timeout: 10)
+                || app.collectionViews.cells.firstMatch.waitForExistence(timeout: 5)
+            XCTAssertTrue(appeared, "\(format) 导出后显示分享面板")
+            app.coordinate(withNormalizedOffset: CGVector(dx: 0.02, dy: 0.5)).tap()
+            XCTAssertTrue(app.buttons["导出"].waitForExistence(timeout: 10))
+        }
+    }
+
+    /// 横竖屏检查（Issue #53）：竖屏和横屏下依次打开各页面并截图（截图保存在测试结果中，人工查看）
+    func testOrientationTour() throws {
+        app.launch()
+        try loginIfNeeded()
+        let pages = ["首页", "产品管理", "入库", "出库订单", "经销商", "保修查询", "报表", "设置"]
+        for orientation in [UIDeviceOrientation.portrait, .landscapeLeft] {
+            XCUIDevice.shared.orientation = orientation
+            let name = orientation == .portrait ? "竖屏" : "横屏"
+            for page in pages {
+                // 竖屏时侧边栏可能收起，先打开
+                if !sidebar(page).isHittable, app.buttons["Show Sidebar"].exists { app.buttons["Show Sidebar"].tap() }
+                sidebar(page).tap()
+                XCTAssertTrue(app.navigationBars.firstMatch.waitForExistence(timeout: 10))
+                sleep(2)
+                attach("\(name)-\(page)")
+            }
+        }
+        XCUIDevice.shared.orientation = .portrait
+    }
+
+    private func attach(_ name: String) {
+        let shot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        shot.name = name
+        shot.lifetime = .keepAlways
+        add(shot)
+    }
 }

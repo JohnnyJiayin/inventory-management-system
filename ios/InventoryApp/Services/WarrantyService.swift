@@ -84,4 +84,28 @@ enum BeijingDate {
         f.dateFormat = "yyyy-MM-dd"
         return f.string(from: date)
     }
+
+    static let calendar: Calendar = {
+        var c = Calendar(identifier: .gregorian)
+        c.timeZone = timeZone
+        return c
+    }()
+
+    /// 北京时间该月第一天 0 点
+    static func monthStart(_ date: Date) -> Date {
+        calendar.date(from: calendar.dateComponents([.year, .month], from: date)) ?? date
+    }
+
+    /// 例如“2026年10月”
+    static func monthTitle(_ date: Date) -> String {
+        let c = calendar.dateComponents([.year, .month], from: date)
+        return "\(c.year ?? 0)年\(c.month ?? 0)月"
+    }
+
+    /// "2026-10-01" → “2026年10月”
+    static func monthTitle(dayString: String) -> String {
+        let parts = dayString.split(separator: "-")
+        guard parts.count >= 2, let y = Int(parts[0]), let m = Int(parts[1]) else { return dayString }
+        return "\(y)年\(m)月"
+    }
 }

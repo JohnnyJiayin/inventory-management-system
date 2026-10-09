@@ -36,6 +36,8 @@ struct MainView: View {
     @State private var selection: Section? = .home
     /// 从首页“即将过保”进入保修查询时的初始筛选；离开保修查询后恢复默认
     @State private var warrantyPreset = WarrantyService.StatusFilter.all
+    /// 从首页数字进入报表时打开的报表
+    @State private var reportPreset = ReportService.Kind.monthly
     @StateObject private var products = ProductStore()
     @StateObject private var stockIn = StockInViewModel()
     @StateObject private var dealers = DealerStore()
@@ -62,7 +64,7 @@ struct MainView: View {
                 case .outbound: OrderListView()
                 case .dealers: DealerListView()
                 case .warranty: WarrantyView(initialStatus: warrantyPreset)
-                case .reports: ReportsPlaceholderView()
+                case .reports: ReportsView(initialKind: reportPreset)
                 case .settings: SettingsView()
                 }
             }
@@ -71,6 +73,7 @@ struct MainView: View {
         }
         .onChange(of: selection) { newValue in
             if newValue != .warranty { warrantyPreset = .all }
+            if newValue != .reports { reportPreset = .monthly }
         }
         .environmentObject(products)
         .environmentObject(dealers)
@@ -83,7 +86,12 @@ struct MainView: View {
         case .expiringWarranty:
             warrantyPreset = .expiring
             selection = .warranty
-        case .monthlyReport, .shippingReport: selection = .reports
+        case .monthlyReport:
+            reportPreset = .monthly
+            selection = .reports
+        case .shippingReport:
+            reportPreset = .shipping
+            selection = .reports
         }
     }
 }
