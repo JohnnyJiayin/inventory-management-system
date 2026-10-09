@@ -23,21 +23,27 @@ values (
 -- 演示型号：有 1 台已出库产品（机身号 R1），用于测试重新入库
 select public.create_model('演示功放', '4.4 AMP', 'DEMO-RESTOCK', '本地演示数据', null, 2, array['R1', 'R2']);
 
-insert into public.dealers (id, company_name, contact_name, phone)
-values ('d0000000-0000-0000-0000-000000000001', '演示经销商', '张三', '13800000000');
-insert into public.dealer_addresses (dealer_id, label, address, is_default)
-values ('d0000000-0000-0000-0000-000000000001', '公司', '上海市演示路 1 号', true);
+-- 演示经销商（两个地址）与价格；一张已完成的出库订单（R1 已出库，用于测试重新入库）；
+-- 出库 UI 测试用的演示音箱 5 台在库（O1–O5），演示经销商单价 200
+do $$
+declare
+  v_dealer  uuid;
+  v_order   uuid;
+  v_amp     uuid := (select id from public.product_models where barcode = 'DEMO-RESTOCK');
+  v_spk     uuid;
+begin
+  v_dealer := public.create_dealer('演示经销商', '张三', '13800000000',
+    '[{"label": "公司", "address": "上海市演示路 1 号", "is_default": true},
+      {"label": "仓库", "address": "上海市仓储路 8 号"}]') ->> 'dealer_id';
+  perform public.set_dealer_price(v_dealer, v_amp, 100);
 
--- 模拟一张已完成的出库订单（出库业务函数在 Sprint 2 实现）
-insert into public.outbound_orders (id, order_no, dealer_id, dealer_name, contact_name, phone, address_text,
-                                    shipping_fee, products_amount, total_amount, status, shipped_at, completed_at)
-values ('0d000000-0000-0000-0000-000000000001', public.next_doc_no('CK'), 'd0000000-0000-0000-0000-000000000001',
-        '演示经销商', '张三', '13800000000', '上海市演示路 1 号', 10, 100, 110, 'completed', now(), now());
-insert into public.outbound_items (order_id, unit_id, model_id, barcode, serial_no, default_price, actual_price,
-                                   warranty_start, warranty_end)
-select '0d000000-0000-0000-0000-000000000001', u.id, u.model_id, u.barcode, u.serial_no, 100, 100,
-       now(), ((now() at time zone 'Asia/Shanghai')::date + interval '1 year')::date
-from public.units u join public.product_models m on m.id = u.model_id
-where m.barcode = 'DEMO-RESTOCK' and u.serial_no = 'R1';
-update public.units set status = 'shipped', last_out_at = now()
-where serial_no = 'R1' and model_id = (select id from public.product_models where barcode = 'DEMO-RESTOCK');
+  v_order := public.create_order(v_dealer) ->> 'order_id';
+  perform public.add_order_item(v_order, v_amp, 'R1');
+  perform public.update_order(v_order, (select address_id from public.outbound_orders where id = v_order), 10);
+  perform public.confirm_order(v_order, gen_random_uuid());
+
+  v_spk := public.create_model('演示音箱', 'SPK-1', 'DEMO-OUT', '本地演示数据', null, 5,
+    array['O1', 'O2', 'O3', 'O4', 'O5']) ->> 'model_id';
+  perform public.set_dealer_price(v_dealer, v_spk, 200);
+end
+$$;

@@ -10,21 +10,18 @@ struct StockInView: View {
 
     var body: some View {
         GeometryReader { geo in
+            // 弹出键盘时可用高度变小（例如 iPad mini 竖屏），可能在横竖布局间切换。用 AnyLayout 切换布局，
+            // 扫码组件不会被重建（否则“手动输入”弹窗刚弹出就被关闭）
             let landscape = geo.size.width > geo.size.height
+            let layout = landscape
+                ? AnyLayout(HStackLayout(alignment: .top, spacing: 20))
+                : AnyLayout(VStackLayout(spacing: 20))
             ScrollView {
-                if landscape {
-                    HStack(alignment: .top, spacing: 20) {
-                        scanColumn.frame(maxWidth: .infinity)
-                        listColumn.frame(width: min(420, geo.size.width * 0.42))
-                    }
-                    .padding()
-                } else {
-                    VStack(spacing: 20) {
-                        scanColumn
-                        listColumn
-                    }
-                    .padding()
+                layout {
+                    scanColumn.frame(maxWidth: .infinity)
+                    listColumn.frame(width: landscape ? min(420, geo.size.width * 0.42) : nil)
                 }
+                .padding()
             }
         }
         .navigationTitle("入库")

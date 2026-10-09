@@ -13,7 +13,7 @@ App 使用 SwiftUI，数据保存在 Supabase（PostgreSQL）。所有写操作�
 ios/                          Xcode 项目（XcodeGen：ios/project.yml）
   InventoryApp/
     App/                      入口、登录、网络监测、导航
-    Features/                 按页面分：首页、产品、入库、出库、经销商、报表、设置
+    Features/                 按页面分：首页、产品、入库、出库、经销商、保修、报表、设置
     Scanner/                  扫码模块（VisionKit，不支持时自动改用 AVFoundation）
     Services/                 Supabase 调用
     Models/                   数据模型
@@ -45,6 +45,7 @@ DB_URL=postgresql://postgres:postgres@127.0.0.1:5432/postgres \
 ```
 
 本地测试账号（只存在于本地库）：`owner@example.com` / `test-pass-123`。
+`seed.sql` 还会创建演示经销商、一张已完成的出库订单和演示音箱（机身号 O1–O5 在库），供 UI 测试使用。
 
 ### iOS App
 

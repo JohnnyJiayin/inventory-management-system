@@ -11,7 +11,7 @@
    - anon / publishable key ——可以公开
    - service_role / secret key ——**只**保存在密码管理器，绝不放进 App 或仓库
 
-## 2. 执行数据库迁移（#3–#6、#14、#15）
+## 2. 执行数据库迁移（#3–#6、#14、#15、#23、#27–#29、#37）
 
 ```bash
 supabase login
@@ -20,7 +20,7 @@ supabase db push                              # 按顺序执行 supabase/migrati
 ```
 
 迁移会自动完成：建表与约束、时区设为 Asia/Shanghai、库存视图、单号生成、操作记录触发器、
-业务函数、RLS 与权限、私有存储桶 `product-photos`。`seed.sql` 只用于本地，不会推送到线上。
+业务函数（产品、入库、经销商、出库订单、撤销）、订单与保修查询视图、RLS 与权限、私有存储桶 `product-photos`。`seed.sql` 只用于本地，不会推送到线上。
 
 ## 3. 登录设置（#1）
 
@@ -42,6 +42,13 @@ curl -s "$URL/rest/v1/product_models?select=*" -H "apikey: $KEY"
 curl -s -o /dev/null -w '%{http_code}\n' -X POST "$URL/rest/v1/rpc/ping" -H "apikey: $KEY" \
   -H "Content-Type: application/json" -d '{}'
 ```
+
+- SQL Editor 中执行下面的查询，结果只有 `ping`（未登录只能调用保活函数）：
+
+  ```sql
+  select proname from pg_proc
+  where pronamespace = 'public'::regnamespace and has_function_privilege('anon', oid, 'execute');
+  ```
 
 - Storage → `product-photos` 显示为 Private。
 - 用创建的账号在 iPad App 登录成功。

@@ -7,30 +7,43 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		001E858AB8F1656EB65E7FBA /* Order.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47D4DC69C3BD3110280658D /* Order.swift */; };
+		077EB50890BC1FFC5A3FFC1E /* Routes.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFFF090B5D2AF6ABDF55DFDB /* Routes.swift */; };
 		0B2EFFA1C0D7E3B1D387BF1F /* ScanSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDB19288E98F7328501657C6 /* ScanSupport.swift */; };
 		0B78ECD8CCE1999746BEF2E1 /* StockInResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42A5E8639DEDF0F91405E293 /* StockInResult.swift */; };
 		0F31C77D1792D07C4AF428F7 /* ReportsPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FEB476E631A92B6D6AF85FF /* ReportsPlaceholderView.swift */; };
 		0F6E932729F8824C8539392C /* StockInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5C229B616E35D95CAA224AE /* StockInView.swift */; };
+		153D45AE95A998751676A902 /* Warranty.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7D8EDF1ADC1FD8D4E03065F /* Warranty.swift */; };
+		19F82140BCFD69FDFD268E9A /* DealerDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3D96E18826FDC78E7E315BD /* DealerDetailView.swift */; };
+		2A4CADFB62656F9BF2BF15BE /* DealerListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25EAC94A10A4DAD3DBCAFC2D /* DealerListView.swift */; };
 		35E1956F3B3FBF6450445288 /* Sprint1FlowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88AB537BC44DAC623BB4052C /* Sprint1FlowTests.swift */; };
+		3694B3B351C6FCB09EE6E492 /* OrderListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61833FE01EA964D76EEFD83A /* OrderListView.swift */; };
+		37D60406E450FB4D4A7853EA /* DealerFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D7919E2EA95E3471D31C580 /* DealerFormView.swift */; };
+		3CE9F41C18E7C97DAE1F6CBA /* OrderService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8381FE907BC210A13A2EBAED /* OrderService.swift */; };
 		44BE68F79C41F3B4D9FDC349 /* ScannerPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B7CF94C6200DB07FC08374E /* ScannerPanel.swift */; };
+		4783B342D03B543DBB0812C3 /* OrderDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8C73103B00309EB3A040CB6 /* OrderDetailView.swift */; };
+		4C1FE8312DE09EF7ABD2DF75 /* FlowTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72385FA7152FEFB23122CFFD /* FlowTestCase.swift */; };
 		57F505D96E9D767610AB8A8F /* InventoryApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8368F0A41DB2082D33A43229 /* InventoryApp.swift */; };
 		5BBB4D9647DBE45B12CB70C4 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 52FCD890E2F6E84CB0B3927E /* Supabase */; };
 		5F60DE6362713336B3E68213 /* Money.swift in Sources */ = {isa = PBXBuildFile; fileRef = F979D28D37E215CC05D452F6 /* Money.swift */; };
 		62490720E286E2EC81E7EC5E /* StockInViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0857824454EC2929C67FDA1 /* StockInViewModel.swift */; };
 		6D93EA7EB3DE6526DE8DFF71 /* ProductModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B426C300D418F819995FD63A /* ProductModel.swift */; };
 		6E68CFBBD052CFDE5577A28E /* ProductStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AF735D0C231B889064875C5 /* ProductStore.swift */; };
+		70AB82312A0C8385FE0F329B /* Sprint2FlowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E36429794A9BC750FCA74F71 /* Sprint2FlowTests.swift */; };
+		793F9130E71E03FC19C8FAA4 /* DealerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD9CAD3FEC9EDC22525501C9 /* DealerService.swift */; };
+		7FF4386843434D07D50EA254 /* OrderEditorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 439FC93D2CBFC41E8534F349 /* OrderEditorViewModel.swift */; };
 		8A4C58598138074CE6F5F0CD /* StockInService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D2B853CEFC7BB530FA3178D /* StockInService.swift */; };
 		8DE9017C7B0B806882750E87 /* ProductPhotoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6095FDD14E3437E721C77D9A /* ProductPhotoView.swift */; };
 		8EDD63FD5510B03027CDA046 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 28108A1B25EDDB1B00A3F918 /* Assets.xcassets */; };
+		9102F5EC08929C1F6D3390F2 /* WarrantyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2467F4EF8E00B696F731BCC2 /* WarrantyService.swift */; };
 		91C4EA10911F453C8E46E383 /* Unit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73A0AFB137C7F2F04AE28468 /* Unit.swift */; };
-		9529F7B6EC663C31C74C1630 /* OutboundPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 313583FD80F3C10761F3DE9B /* OutboundPlaceholderView.swift */; };
 		9546CEB1ECC4C54D877D8D6A /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B24C02FAC9FAED07B2B7EF1C /* LoginView.swift */; };
 		983E64BB362C2EB24C61DD22 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BF7D285615B296D612C2ED4 /* SettingsView.swift */; };
 		98AE9EF89E3AB6E729592DD2 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9643C45D1657986978E0790 /* HomeView.swift */; };
 		9BA9703E6CC576C4DD0B1C12 /* AuthStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9E39EC160FCAE9FEA55F93A /* AuthStore.swift */; };
 		9F3FA6B4EC649F0E45401ABB /* ProductDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C20F054C65EB11F9221A004 /* ProductDetailView.swift */; };
 		A96E7796803037D0A4F15E2A /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFF5725A5D91D52F8E5CF80D /* RootView.swift */; };
-		B15D6A81C5717FD45694A318 /* DealersPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A1C927D0177835F965AB89F /* DealersPlaceholderView.swift */; };
+		B2E3174CBD3F8A63CB43837B /* DealerStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9272F1DB4A6903F1D34E1FF9 /* DealerStore.swift */; };
 		B3D9C288E003735F4CA96207 /* AppError.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD6C6C4B599902D3260B02F4 /* AppError.swift */; };
 		BB1A910BA050395376DFF6C7 /* AppConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51748C68BD9F751AD90523D1 /* AppConfig.swift */; };
 		C2640747C6877305ACC106A6 /* ProductFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4DEE38BE8A4AF04B77DE8F2 /* ProductFormView.swift */; };
@@ -39,10 +52,13 @@
 		DD3C33BCB45063E564A34E4D /* SupabaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10DF9D22065EAA44F1DCAF27 /* SupabaseService.swift */; };
 		E3E7A04A659CC7BDB6645592 /* ProductListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C798D1B602AB43EDF1ED849 /* ProductListView.swift */; };
 		E5481B1AC318A241935F73CF /* ProductService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13D3F5D3E8A4495C29F61C3D /* ProductService.swift */; };
+		EEB1C37ED5F0250972732C5D /* WarrantyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 922DD0970C1DD9891A6EAF06 /* WarrantyView.swift */; };
 		EFACA70A603044A17BA1C0DA /* PhotoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A2B4D447B765400534A10BB /* PhotoService.swift */; };
 		F183C8B6DE4EBFF8FBFD8F00 /* UnknownBarcodeSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAB27E264FAC0C07699D1065 /* UnknownBarcodeSheet.swift */; };
+		F4796CA1454769FE19FF5C71 /* OrderEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABE854856008AC53EE4A9BCA /* OrderEditorView.swift */; };
 		F6C7A612A2D64852968A3957 /* OnlineGuard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B7290F3D92125F2F741DC1E /* OnlineGuard.swift */; };
 		F97FBC0AA0717B65CAD36FA3 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 455F4027A6D29DEE0ED1C746 /* MainView.swift */; };
+		FA4C4952D2FA1801B1B9A417 /* Dealer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1C9B10F10AA6627EDF0CCBE /* Dealer.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -60,11 +76,12 @@
 		10DF9D22065EAA44F1DCAF27 /* SupabaseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseService.swift; sourceTree = "<group>"; };
 		13D3F5D3E8A4495C29F61C3D /* ProductService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductService.swift; sourceTree = "<group>"; };
 		1D2B853CEFC7BB530FA3178D /* StockInService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StockInService.swift; sourceTree = "<group>"; };
+		2467F4EF8E00B696F731BCC2 /* WarrantyService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WarrantyService.swift; sourceTree = "<group>"; };
+		25EAC94A10A4DAD3DBCAFC2D /* DealerListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DealerListView.swift; sourceTree = "<group>"; };
 		28108A1B25EDDB1B00A3F918 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		2A1C927D0177835F965AB89F /* DealersPlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DealersPlaceholderView.swift; sourceTree = "<group>"; };
 		2FEB476E631A92B6D6AF85FF /* ReportsPlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportsPlaceholderView.swift; sourceTree = "<group>"; };
-		313583FD80F3C10761F3DE9B /* OutboundPlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutboundPlaceholderView.swift; sourceTree = "<group>"; };
 		42A5E8639DEDF0F91405E293 /* StockInResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StockInResult.swift; sourceTree = "<group>"; };
+		439FC93D2CBFC41E8534F349 /* OrderEditorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderEditorViewModel.swift; sourceTree = "<group>"; };
 		455F4027A6D29DEE0ED1C746 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
 		4B7CF94C6200DB07FC08374E /* ScannerPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScannerPanel.swift; sourceTree = "<group>"; };
 		4BF7D285615B296D612C2ED4 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
@@ -73,27 +90,42 @@
 		5517C20CD468F2C40696E790 /* CameraScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraScannerView.swift; sourceTree = "<group>"; };
 		5C20F054C65EB11F9221A004 /* ProductDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductDetailView.swift; sourceTree = "<group>"; };
 		6095FDD14E3437E721C77D9A /* ProductPhotoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductPhotoView.swift; sourceTree = "<group>"; };
+		61833FE01EA964D76EEFD83A /* OrderListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderListView.swift; sourceTree = "<group>"; };
+		72385FA7152FEFB23122CFFD /* FlowTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlowTestCase.swift; sourceTree = "<group>"; };
 		73A0AFB137C7F2F04AE28468 /* Unit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Unit.swift; sourceTree = "<group>"; };
+		7D7919E2EA95E3471D31C580 /* DealerFormView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DealerFormView.swift; sourceTree = "<group>"; };
 		8368F0A41DB2082D33A43229 /* InventoryApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InventoryApp.swift; sourceTree = "<group>"; };
+		8381FE907BC210A13A2EBAED /* OrderService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderService.swift; sourceTree = "<group>"; };
 		88AB537BC44DAC623BB4052C /* Sprint1FlowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sprint1FlowTests.swift; sourceTree = "<group>"; };
 		8AF735D0C231B889064875C5 /* ProductStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductStore.swift; sourceTree = "<group>"; };
+		922DD0970C1DD9891A6EAF06 /* WarrantyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WarrantyView.swift; sourceTree = "<group>"; };
+		9272F1DB4A6903F1D34E1FF9 /* DealerStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DealerStore.swift; sourceTree = "<group>"; };
 		9A2B4D447B765400534A10BB /* PhotoService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoService.swift; sourceTree = "<group>"; };
 		9B7290F3D92125F2F741DC1E /* OnlineGuard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnlineGuard.swift; sourceTree = "<group>"; };
+		A3D96E18826FDC78E7E315BD /* DealerDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DealerDetailView.swift; sourceTree = "<group>"; };
+		ABE854856008AC53EE4A9BCA /* OrderEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderEditorView.swift; sourceTree = "<group>"; };
 		AFF5725A5D91D52F8E5CF80D /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		AFFF090B5D2AF6ABDF55DFDB /* Routes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Routes.swift; sourceTree = "<group>"; };
 		B0857824454EC2929C67FDA1 /* StockInViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StockInViewModel.swift; sourceTree = "<group>"; };
 		B24C02FAC9FAED07B2B7EF1C /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		B426C300D418F819995FD63A /* ProductModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductModel.swift; sourceTree = "<group>"; };
+		B8C73103B00309EB3A040CB6 /* OrderDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderDetailView.swift; sourceTree = "<group>"; };
 		B9643C45D1657986978E0790 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		BB6E1978F700DACD827907E5 /* InventoryAppUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = InventoryAppUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		BD9CAD3FEC9EDC22525501C9 /* DealerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DealerService.swift; sourceTree = "<group>"; };
 		C4DEE38BE8A4AF04B77DE8F2 /* ProductFormView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductFormView.swift; sourceTree = "<group>"; };
+		C7D8EDF1ADC1FD8D4E03065F /* Warranty.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Warranty.swift; sourceTree = "<group>"; };
 		CD6C6C4B599902D3260B02F4 /* AppError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppError.swift; sourceTree = "<group>"; };
 		CDB19288E98F7328501657C6 /* ScanSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanSupport.swift; sourceTree = "<group>"; };
 		D89F84E7E12D92E860920C7F /* Base.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Base.xcconfig; sourceTree = "<group>"; };
 		D9E39EC160FCAE9FEA55F93A /* AuthStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthStore.swift; sourceTree = "<group>"; };
 		DAB27E264FAC0C07699D1065 /* UnknownBarcodeSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnknownBarcodeSheet.swift; sourceTree = "<group>"; };
+		E36429794A9BC750FCA74F71 /* Sprint2FlowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sprint2FlowTests.swift; sourceTree = "<group>"; };
 		E5C229B616E35D95CAA224AE /* StockInView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StockInView.swift; sourceTree = "<group>"; };
 		E60B238C2DF1EFE4E8D3E359 /* NetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitor.swift; sourceTree = "<group>"; };
+		F1C9B10F10AA6627EDF0CCBE /* Dealer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dealer.swift; sourceTree = "<group>"; };
 		F33B6E1441462F03B3C4D9F8 /* InventoryApp.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = InventoryApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F47D4DC69C3BD3110280658D /* Order.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Order.swift; sourceTree = "<group>"; };
 		F979D28D37E215CC05D452F6 /* Money.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Money.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -112,10 +144,13 @@
 		001C75879E57052F61ABBF5D /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				F1C9B10F10AA6627EDF0CCBE /* Dealer.swift */,
 				F979D28D37E215CC05D452F6 /* Money.swift */,
+				F47D4DC69C3BD3110280658D /* Order.swift */,
 				B426C300D418F819995FD63A /* ProductModel.swift */,
 				42A5E8639DEDF0F91405E293 /* StockInResult.swift */,
 				73A0AFB137C7F2F04AE28468 /* Unit.swift */,
+				C7D8EDF1ADC1FD8D4E03065F /* Warranty.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -136,7 +171,9 @@
 		3093B888682FE1BD2B0C593D /* InventoryAppUITests */ = {
 			isa = PBXGroup;
 			children = (
+				72385FA7152FEFB23122CFFD /* FlowTestCase.swift */,
 				88AB537BC44DAC623BB4052C /* Sprint1FlowTests.swift */,
+				E36429794A9BC750FCA74F71 /* Sprint2FlowTests.swift */,
 			);
 			path = InventoryAppUITests;
 			sourceTree = "<group>";
@@ -181,10 +218,13 @@
 			children = (
 				51748C68BD9F751AD90523D1 /* AppConfig.swift */,
 				CD6C6C4B599902D3260B02F4 /* AppError.swift */,
+				BD9CAD3FEC9EDC22525501C9 /* DealerService.swift */,
+				8381FE907BC210A13A2EBAED /* OrderService.swift */,
 				9A2B4D447B765400534A10BB /* PhotoService.swift */,
 				13D3F5D3E8A4495C29F61C3D /* ProductService.swift */,
 				1D2B853CEFC7BB530FA3178D /* StockInService.swift */,
 				10DF9D22065EAA44F1DCAF27 /* SupabaseService.swift */,
+				2467F4EF8E00B696F731BCC2 /* WarrantyService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -192,7 +232,10 @@
 		7B096528E0606FE17C38F1A7 /* Dealers */ = {
 			isa = PBXGroup;
 			children = (
-				2A1C927D0177835F965AB89F /* DealersPlaceholderView.swift */,
+				A3D96E18826FDC78E7E315BD /* DealerDetailView.swift */,
+				7D7919E2EA95E3471D31C580 /* DealerFormView.swift */,
+				25EAC94A10A4DAD3DBCAFC2D /* DealerListView.swift */,
+				9272F1DB4A6903F1D34E1FF9 /* DealerStore.swift */,
 			);
 			path = Dealers;
 			sourceTree = "<group>";
@@ -217,6 +260,7 @@
 				E60B238C2DF1EFE4E8D3E359 /* NetworkMonitor.swift */,
 				9B7290F3D92125F2F741DC1E /* OnlineGuard.swift */,
 				AFF5725A5D91D52F8E5CF80D /* RootView.swift */,
+				AFFF090B5D2AF6ABDF55DFDB /* Routes.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -258,7 +302,10 @@
 		D96BBC656E72207FA6DD3B9B /* Outbound */ = {
 			isa = PBXGroup;
 			children = (
-				313583FD80F3C10761F3DE9B /* OutboundPlaceholderView.swift */,
+				B8C73103B00309EB3A040CB6 /* OrderDetailView.swift */,
+				ABE854856008AC53EE4A9BCA /* OrderEditorView.swift */,
+				439FC93D2CBFC41E8534F349 /* OrderEditorViewModel.swift */,
+				61833FE01EA964D76EEFD83A /* OrderListView.swift */,
 			);
 			path = Outbound;
 			sourceTree = "<group>";
@@ -286,8 +333,17 @@
 				558F1B285ADE41221CF5DEF6 /* Reports */,
 				AA6AF7BA951C4D76C59846A1 /* Settings */,
 				B7092365FF9CA6F04D35D575 /* StockIn */,
+				F94B689380BD1474D35B5C98 /* Warranty */,
 			);
 			path = Features;
+			sourceTree = "<group>";
+		};
+		F94B689380BD1474D35B5C98 /* Warranty */ = {
+			isa = PBXGroup;
+			children = (
+				922DD0970C1DD9891A6EAF06 /* WarrantyView.swift */,
+			);
+			path = Warranty;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -391,7 +447,12 @@
 				B3D9C288E003735F4CA96207 /* AppError.swift in Sources */,
 				9BA9703E6CC576C4DD0B1C12 /* AuthStore.swift in Sources */,
 				CC05C1C0A1C61A2FB53DF23D /* CameraScannerView.swift in Sources */,
-				B15D6A81C5717FD45694A318 /* DealersPlaceholderView.swift in Sources */,
+				FA4C4952D2FA1801B1B9A417 /* Dealer.swift in Sources */,
+				19F82140BCFD69FDFD268E9A /* DealerDetailView.swift in Sources */,
+				37D60406E450FB4D4A7853EA /* DealerFormView.swift in Sources */,
+				2A4CADFB62656F9BF2BF15BE /* DealerListView.swift in Sources */,
+				793F9130E71E03FC19C8FAA4 /* DealerService.swift in Sources */,
+				B2E3174CBD3F8A63CB43837B /* DealerStore.swift in Sources */,
 				98AE9EF89E3AB6E729592DD2 /* HomeView.swift in Sources */,
 				57F505D96E9D767610AB8A8F /* InventoryApp.swift in Sources */,
 				9546CEB1ECC4C54D877D8D6A /* LoginView.swift in Sources */,
@@ -399,7 +460,12 @@
 				5F60DE6362713336B3E68213 /* Money.swift in Sources */,
 				D511C814FE4926B7A153DDF7 /* NetworkMonitor.swift in Sources */,
 				F6C7A612A2D64852968A3957 /* OnlineGuard.swift in Sources */,
-				9529F7B6EC663C31C74C1630 /* OutboundPlaceholderView.swift in Sources */,
+				001E858AB8F1656EB65E7FBA /* Order.swift in Sources */,
+				4783B342D03B543DBB0812C3 /* OrderDetailView.swift in Sources */,
+				F4796CA1454769FE19FF5C71 /* OrderEditorView.swift in Sources */,
+				7FF4386843434D07D50EA254 /* OrderEditorViewModel.swift in Sources */,
+				3694B3B351C6FCB09EE6E492 /* OrderListView.swift in Sources */,
+				3CE9F41C18E7C97DAE1F6CBA /* OrderService.swift in Sources */,
 				EFACA70A603044A17BA1C0DA /* PhotoService.swift in Sources */,
 				9F3FA6B4EC649F0E45401ABB /* ProductDetailView.swift in Sources */,
 				C2640747C6877305ACC106A6 /* ProductFormView.swift in Sources */,
@@ -410,6 +476,7 @@
 				6E68CFBBD052CFDE5577A28E /* ProductStore.swift in Sources */,
 				0F31C77D1792D07C4AF428F7 /* ReportsPlaceholderView.swift in Sources */,
 				A96E7796803037D0A4F15E2A /* RootView.swift in Sources */,
+				077EB50890BC1FFC5A3FFC1E /* Routes.swift in Sources */,
 				0B2EFFA1C0D7E3B1D387BF1F /* ScanSupport.swift in Sources */,
 				44BE68F79C41F3B4D9FDC349 /* ScannerPanel.swift in Sources */,
 				983E64BB362C2EB24C61DD22 /* SettingsView.swift in Sources */,
@@ -420,6 +487,9 @@
 				DD3C33BCB45063E564A34E4D /* SupabaseService.swift in Sources */,
 				91C4EA10911F453C8E46E383 /* Unit.swift in Sources */,
 				F183C8B6DE4EBFF8FBFD8F00 /* UnknownBarcodeSheet.swift in Sources */,
+				153D45AE95A998751676A902 /* Warranty.swift in Sources */,
+				9102F5EC08929C1F6D3390F2 /* WarrantyService.swift in Sources */,
+				EEB1C37ED5F0250972732C5D /* WarrantyView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -427,7 +497,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4C1FE8312DE09EF7ABD2DF75 /* FlowTestCase.swift in Sources */,
 				35E1956F3B3FBF6450445288 /* Sprint1FlowTests.swift in Sources */,
+				70AB82312A0C8385FE0F329B /* Sprint2FlowTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

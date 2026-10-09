@@ -35,3 +35,27 @@ enum Money {
         return f
     }()
 }
+
+extension KeyedDecodingContainer {
+    /// 解码 numeric(12,2) 金额。PostgREST 以 JSON 数字返回，解码时可能经过二进制浮点，
+    /// 四舍五入到两位小数即可还原数据库中的精确值（12 位有效数字在 Double 精度之内）。
+    func decodeMoney(forKey key: Key) throws -> Decimal {
+        Money.rounded(try decode(Decimal.self, forKey: key))
+    }
+
+    func decodeMoneyIfPresent(forKey key: Key) throws -> Decimal? {
+        try decodeIfPresent(Decimal.self, forKey: key).map(Money.rounded)
+    }
+}
+
+extension Money {
+    /// 传给业务函数的金额：以字符串传递，避免 JSON 数字经过浮点转换
+    static func param(_ value: Decimal) -> String {
+        NSDecimalNumber(decimal: rounded(value)).stringValue
+    }
+
+    /// 编辑框中显示的金额（不带货币符号，例如 "12.5"）
+    static func plain(_ value: Decimal) -> String {
+        param(value)
+    }
+}

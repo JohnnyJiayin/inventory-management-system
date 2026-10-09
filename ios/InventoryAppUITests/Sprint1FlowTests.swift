@@ -3,21 +3,7 @@ import XCTest
 /// Sprint 1 端到端流程（在模拟器 + 本地 supabase 上运行）
 ///   前提：supabase start；本地已创建测试账号；ios/Config/Secrets.xcconfig 指向本地 supabase。
 ///   账号通过 scheme 的环境变量 UITEST_EMAIL / UITEST_PASSWORD 提供（只用于本地测试库）。
-final class Sprint1FlowTests: XCTestCase {
-    private var app: XCUIApplication!
-    private let env = ProcessInfo.processInfo.environment
-
-    override func setUp() {
-        continueAfterFailure = false
-        app = XCUIApplication()
-        addUIInterruptionMonitor(withDescription: "权限") { alert in
-            for label in ["允许", "Allow", "OK", "好"] where alert.buttons[label].exists {
-                alert.buttons[label].tap()
-                return true
-            }
-            return false
-        }
-    }
+final class Sprint1FlowTests: FlowTestCase {
 
     func testFullSprint1Flow() throws {
         let email = try XCTUnwrap(env["UITEST_EMAIL"])
@@ -150,47 +136,5 @@ final class Sprint1FlowTests: XCTestCase {
         XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label CONTAINS '首次入库 0，重新入库 1'")).firstMatch
             .waitForExistence(timeout: 10))
         XCTAssertTrue(app.staticTexts["2"].waitForExistence(timeout: 10), "重新入库后库存加 1")
-    }
-
-    // MARK: - helpers
-
-    private func loginIfNeeded() throws {
-        let emailField = app.textFields["邮箱"]
-        guard emailField.waitForExistence(timeout: 5) else { return }
-        type(into: emailField, try XCTUnwrap(env["UITEST_EMAIL"]))
-        type(into: app.secureTextFields["密码"], try XCTUnwrap(env["UITEST_PASSWORD"]))
-        app.buttons["登录"].tap()
-        XCTAssertTrue(sidebar("入库").waitForExistence(timeout: 10))
-    }
-
-    private func sidebar(_ title: String) -> XCUIElement {
-        let cell = app.collectionViews.buttons[title]
-        if cell.exists { return cell }
-        return app.buttons[title].firstMatch
-    }
-
-    private func type(into field: XCUIElement, _ text: String) {
-        XCTAssertTrue(field.waitForExistence(timeout: 10))
-        field.tap()
-        field.typeText(text)
-    }
-
-    private func manualInput(_ code: String) {
-        let button = app.buttons["手动输入"]
-        XCTAssertTrue(button.waitForExistence(timeout: 10))
-        button.tap()
-        let field = app.alerts.textFields.firstMatch
-        XCTAssertTrue(field.waitForExistence(timeout: 5))
-        field.typeText(code)
-        app.alerts.buttons["确定"].tap()
-    }
-
-    private func signOutIfNeeded() {
-        let settings = sidebar("设置")
-        if settings.waitForExistence(timeout: 5) {
-            settings.tap()
-            app.buttons["退出登录"].firstMatch.tap()
-            app.buttons["退出登录"].firstMatch.tap()
-        }
     }
 }

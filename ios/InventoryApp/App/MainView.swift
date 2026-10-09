@@ -3,7 +3,7 @@ import SwiftUI
 /// 侧边栏导航（需求 16）。横屏时侧边栏常驻，竖屏时可收起。
 struct MainView: View {
     enum Section: String, CaseIterable, Identifiable, Hashable {
-        case home, products, stockIn, outbound, dealers, reports, settings
+        case home, products, stockIn, outbound, dealers, warranty, reports, settings
         var id: Self { self }
 
         var title: String {
@@ -13,6 +13,7 @@ struct MainView: View {
             case .stockIn: "入库"
             case .outbound: "出库订单"
             case .dealers: "经销商"
+            case .warranty: "保修查询"
             case .reports: "报表"
             case .settings: "设置"
             }
@@ -25,6 +26,7 @@ struct MainView: View {
             case .stockIn: "tray.and.arrow.down"
             case .outbound: "tray.and.arrow.up"
             case .dealers: "person.2"
+            case .warranty: "checkmark.shield"
             case .reports: "chart.bar"
             case .settings: "gearshape"
             }
@@ -34,6 +36,7 @@ struct MainView: View {
     @State private var selection: Section? = .home
     @StateObject private var products = ProductStore()
     @StateObject private var stockIn = StockInViewModel()
+    @StateObject private var dealers = DealerStore()
 
     var body: some View {
         NavigationSplitView {
@@ -54,8 +57,9 @@ struct MainView: View {
                 case .home: HomeView()
                 case .products: ProductListView()
                 case .stockIn: StockInView(vm: stockIn)
-                case .outbound: OutboundPlaceholderView()
-                case .dealers: DealersPlaceholderView()
+                case .outbound: OrderListView()
+                case .dealers: DealerListView()
+                case .warranty: WarrantyView()
                 case .reports: ReportsPlaceholderView()
                 case .settings: SettingsView()
                 }
@@ -64,6 +68,7 @@ struct MainView: View {
             .id(selection)
         }
         .environmentObject(products)
+        .environmentObject(dealers)
     }
 }
 
